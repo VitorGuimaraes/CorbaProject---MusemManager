@@ -1,0 +1,100 @@
+﻿sudo apt-get update && sudo apt-get upgrade -y
+sudo apt-get install g++
+
+-Baixe o omniORB e o omniOBRpy
+
+https://sourceforge.net/projects/omniorb/files/latest/download?source=files
+
+https://sourceforge.net/projects/omniorb/files/omniORBpy/omniORBpy-4.2.2/omniORBpy-4.2.2.tar.bz2/download
+
+- Extraia os dois
+
+
+-Entre na pasta do omniORB e crie uma pasta build:
+cd omniORB-4.2.2
+mkdir build && cd build
+
+sudo ../configure --prefix=/usr
+sudo make && sudo make install
+
+cd /build/src
+sudo make export
+
+- Copie o arquivo 'sample.cfg' para uma nova pasta na home. Esse arquivo fica
+localizado dentro da pasta aonde foi extraido o omniOrb. Renomeie este arquivo para omniORB.cfg
+
+-Abra o omniORB.cfg e localize a linha:
+InitRef = NameService=corbaname::my.host.name
+-altere para:
+InitRef = NameService=corbaname::localhost
+-(remova o # no início da linha)
+
+###################################################################
+Variáveis de Ambiente
+-Insira no .bashrc as variáveis abaixo. O .bashrc fica na pasta home e é um arquivo oculto. Pressione ctrl + H para ver arquivos ocultos.
+OMNIORB_CONFIG: Irá conter o caminho o nosso arquivo de configuração,
+o omniORB.cfg
+OMNINAMES_LOGDIR: Irá conter o caminho para aonde deve ser gerado um arquivo log quando o serviço de nomes for iniciado
+-O meu ficou assim:
+
+export OMNIORB_CONFIG=/home/vitor/CorbaConfig/omniORB.cfg
+export OMNINAMES_LOGDIR=/home/vitor/CorbaConfig/corba/
+
+###################################################################
+
+Instalando o omniOBRpy
+
+-Entre na pasta do omniORBpy e crie uma pasta build:
+cd omniORBpy-4.2.2
+mkdir build && cd build
+
+sudo ../configure --prefix=/usr
+sudo make && sudo make install
+
+Pra terminar, instale o python-omniorb
+sudo apt-get install python-omniorb -y
+
+###################################################################
+Rodando um exemplo
+
+-Os códigos de exemplo estão em omniORBpy-4.2.2/examples/
+-Abra a pasta echo
+-Use o comando abaixo para "compilar" o .idl do código de exemplo:
+omniidl -bpython example_echo.idl
+
+-Ao usar esse comando são criadas duas pastas com arquivos que serão importados pelo código abaixo. Esse código está na página 6 da documentação. A documentação está em omniORBpy-4.2.2/doc/omniORBpy.pdf
+
+# -*- coding: utf-8 -*-
+import sys
+
+from omniORB import CORBA, PortableServer
+import Example, Example__POA
+
+class Echo_i(Example__POA.Echo):
+    def echoString(self, mesg):
+        print "echoString() called with message:", mesg
+        return mesg
+
+orb = CORBA.ORB_init(sys.argv, CORBA.ORB_ID)
+poa = orb.resolve_initial_references("RootPOA")
+
+ei = Echo_i()
+eo = ei._this()
+
+poaManager = poa._get_the_POAManager()
+poaManager.activate()
+
+message = "Hello"
+result = eo.echoString(message)
+
+print "I said ’%s’. The object said ’%s’." % (message,result)
+
+Salve o código e execute normalmente. Eu dei o nome de echo_test.py, então ao executar (python echo_test.py) a saída é:
+
+echoString() called with message: Hello
+I said ’Hello’. The object said ’Hello’.
+
+
+
+
+

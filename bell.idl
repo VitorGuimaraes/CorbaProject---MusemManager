@@ -1,0 +1,8 @@
+// bell.idl
+// Um module eh uma pasta que contem os arquivos gerados pela classe do idl
+
+module Sino {
+    interface Bell {
+        void ring_bell();    
+    };   
+};

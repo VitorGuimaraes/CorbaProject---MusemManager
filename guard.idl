@@ -1,0 +1,13 @@
+// guard.idl
+
+module Guarda {
+    interface Guard {   
+
+    void warns_guard(in string msg);
+	
+    long get_visitors();
+    
+    void is_night();
+    
+    };   
+};
